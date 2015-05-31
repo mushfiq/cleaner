@@ -1,5 +1,5 @@
 package main
-
+//run command via go run cleaner.go --filepath=/Users/caveman/Desktop
 import (
 	"flag"
 	"fmt"
@@ -12,20 +12,28 @@ type MetaData struct {
 	fileSize int64
 }
 
-func fileInfo(fileName string) (string, int64) {
+func fileInfo(fileName string) (string) {
+	// for time formatting in golang
+	// details: http://golang.org/pkg/time/#Time.Format and 
+ 	// https://gobyexample.com/time-formatting-parsing
+	
+	const layout = "2006-01-02"
+	
 	file, error := os.Stat(fileName)
 	if error != nil {
 		fmt.Println(error)
 	}
-	return file.Name(), file.Size()
+	
+	return file.ModTime().Format(layout)
 }
 
 func listFiles(filePath string) {
 	files, _ := ioutil.ReadDir(filePath)
 	for _, f := range files {
 		fileName := f.Name()
-		fname, fsize := fileInfo(fileName)
-		fmt.Println("File:", fname, "and size is:", float64(float64(fsize)/(1024*1024)))
+		fullFilePath := filePath+fileName
+		fLastModified := fileInfo(fullFilePath)
+		fmt.Println("File:", filePath+fileName, "and last modified at:", fLastModified)
 	}
 
 }
