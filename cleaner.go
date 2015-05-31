@@ -5,6 +5,9 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"syscall"
+	"strconv"
+	"time"
 )
 
 type MetaData struct {
@@ -12,7 +15,16 @@ type MetaData struct {
 	fileSize int64
 }
 
-func fileInfo(fileName string) (string) {
+func unixTimeToDate(lastAccess string) (time.Time) {
+	i, err := strconv.ParseInt(lastAccess, 10, 64)
+	if err != nil {
+		panic(err)
+	}
+	tm := time.Unix(i, 0)
+	return tm
+}
+
+func fileInfo(fileName string) (string, string) {
 	// for time formatting in golang
 	// details: http://golang.org/pkg/time/#Time.Format and 
  	// https://gobyexample.com/time-formatting-parsing
@@ -23,8 +35,12 @@ func fileInfo(fileName string) (string) {
 	if error != nil {
 		fmt.Println(error)
 	}
-	
-	return file.ModTime().Format(layout)
+	lastAccess := (file.Sys().(*syscall.Stat_t).Atimespec.Sec)
+	// dirty hack fix it via actively coverting or using sth else than ParseInt!!
+	dt := unixTimeToDate(fmt.Sprint(lastAccess))
+	lastAccessed := dt.Format(layout)
+	lastModiefied := file.ModTime().Format(layout)
+	return lastAccessed, lastModiefied
 }
 
 func listFiles(filePath string) {
@@ -32,8 +48,9 @@ func listFiles(filePath string) {
 	for _, f := range files {
 		fileName := f.Name()
 		fullFilePath := filePath+fileName
-		fLastModified := fileInfo(fullFilePath)
-		fmt.Println("File:", filePath+fileName, "and last modified at:", fLastModified)
+		fLastAccessed, fLastModified := fileInfo(fullFilePath)
+		fmt.Println("--------------")
+		fmt.Println("File:", fileName, ", last accessed at:", fLastAccessed, "and last modified at:", fLastModified)
 	}
 
 }
