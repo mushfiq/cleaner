@@ -1,5 +1,8 @@
-#Following steps needs to be implemented for minimul use:
-	1. list all files of given dir path
-	2. read metadata of a file
-	3. show report of specific file
-	4. if selected delete files
+## Todo Items
+V1 feature lists as follows:
+ - ~~list all files of given dir path~~ 
+  - read metadata of a file
+    - ~~last modification date~~
+    - last access time of the file
+  - show report of specific file
+  - if selected delete files
