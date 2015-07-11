@@ -4,14 +4,14 @@ package main
 import (
 	// "flag"
 	"fmt"
+	"github.com/julienschmidt/httprouter"
 	"io/ioutil"
+	"log"
+	"net/http"
 	"os"
 	"strconv"
 	"syscall"
 	"time"
-    "github.com/julienschmidt/httprouter"
-    "net/http"
-    "log"
 )
 
 type MetaData struct {
@@ -49,35 +49,32 @@ func fileInfo(fileName string) MetaData {
 	return fileMeta
 }
 
-func listFiles(filePath string) {
+func listFiles(w http.ResponseWriter, filePath string) {
 	files, _ := ioutil.ReadDir(filePath)
-	
-	fmt.Println("File:", "| last accessed at:", "|and last modified at:")
-	
+
+	fmt.Fprint(w, "File:", "| <b>last accessed at:</b>", "|and last modified at:")
 	for _, f := range files {
 		fileName := f.Name()
 		fullFilePath := filePath + fileName
 		fileMeta := fileInfo(fullFilePath)
-		// fmt.Println("\n")
-		fmt.Println(fileName, "|", fileMeta.lastAccessed,"|", fileMeta.lastModiefied)
+		fmt.Println(fileName, "|", fileMeta.lastAccessed, "|", fileMeta.lastModiefied)
+		fmt.Fprint(w, "\n")
+		fmt.Fprint(w, fileName, "|", fileMeta.lastAccessed, "|", fileMeta.lastModiefied)
 	}
-
 }
 
 func Index(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	fmt.Fprint(w, "Welcome to MAC Cleaner!\n")
 }
 
-func prepareCleaning(w http.ResponseWriter, r *http.Request, ps httprouter.Params){
-	fmt.Fprintf(w, "Path is, %s!\n", ps.ByName("path"))
+func prepareCleaning(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	fmt.Fprintf(w, "Path is: %s!\n", ps.ByName("path"))
 	filePath := ps.ByName("path")
-	listFiles(filePath)	
+	listFiles(w, filePath)
 }
 func main() {
-
 	router := httprouter.New()
 	router.GET("/", Index)
 	router.GET("/cleaner/*path", prepareCleaning)
-	
 	log.Fatal(http.ListenAndServe(":8080", router))
 }
