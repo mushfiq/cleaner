@@ -9,10 +9,10 @@ V1 feature lists as follows:
     - display files older that "x" days/months
 	- check whether file is junk or not
   - display which file was last used when
-  	- bootstrap a web framework
-	- create a form to take user input
-	- apply the reporting function on top of user input
-	- display the report on a webpage
+  	- ~~bootstrap a http router 
+	- ~~get user path from url route
+	- ~~apply the reporting function on top of user input
+	- ~~display the report on a webpage
 	- options to select specific files from the page
 	- add a delete button at the end of the file
   - if selected delete files
