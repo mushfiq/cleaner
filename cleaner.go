@@ -42,19 +42,21 @@ func fileInfo(fileName string) MetaData {
 	// dirty hack fix it via actively coverting or using sth else than ParseInt!!
 	dt := unixTimeToDate(fmt.Sprint(lastAccess))
 	fileMeta.lastAccessed = dt.Format(layout)
-	fmt.Println("getting file info...")
 	fileMeta.lastModiefied = file.ModTime().Format(layout)
 	return fileMeta
 }
 
 func listFiles(filePath string) {
 	files, _ := ioutil.ReadDir(filePath)
+	
+	fmt.Println("File:", "| last accessed at:", "|and last modified at:")
+	
 	for _, f := range files {
 		fileName := f.Name()
 		fullFilePath := filePath + fileName
 		fileMeta := fileInfo(fullFilePath)
-		fmt.Println("--------------")
-		fmt.Println("File:", fileName, ", last accessed at:", fileMeta.lastAccessed, "and last modified at:", fileMeta.lastModiefied)
+		// fmt.Println("\n")
+		fmt.Println(fileName, "|", fileMeta.lastAccessed,"|", fileMeta.lastModiefied)
 	}
 
 }
