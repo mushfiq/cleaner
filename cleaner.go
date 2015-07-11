@@ -2,13 +2,16 @@ package main
 
 //run command via go run cleaner.go --filepath=/Users/caveman/Desktop
 import (
-	"flag"
+	// "flag"
 	"fmt"
 	"io/ioutil"
 	"os"
 	"strconv"
 	"syscall"
 	"time"
+    "github.com/julienschmidt/httprouter"
+    "net/http"
+    "log"
 )
 
 type MetaData struct {
@@ -61,8 +64,20 @@ func listFiles(filePath string) {
 
 }
 
+func Index(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	fmt.Fprint(w, "Welcome to MAC Cleaner!\n")
+}
+
+func prepareCleaning(w http.ResponseWriter, r *http.Request, ps httprouter.Params){
+	fmt.Fprintf(w, "Path is, %s!\n", ps.ByName("path"))
+	filePath := ps.ByName("path")
+	listFiles(filePath)	
+}
 func main() {
-	filePath := flag.String("filepath", "default", "a string")
-	flag.Parse()
-	listFiles(*filePath)
+
+	router := httprouter.New()
+	router.GET("/", Index)
+	router.GET("/cleaner/*path", prepareCleaning)
+	
+	log.Fatal(http.ListenAndServe(":8080", router))
 }
