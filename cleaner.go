@@ -4,7 +4,6 @@ package main
 import (
 	// "flag"
 	"fmt"
-	"github.com/julienschmidt/httprouter"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -12,6 +11,8 @@ import (
 	"strconv"
 	"syscall"
 	"time"
+	"github.com/julienschmidt/httprouter"
+	// "github.com/gorilla/schema"|
 )
 
 type MetaData struct {
@@ -52,7 +53,7 @@ func fileInfo(fileName string) MetaData {
 func listFiles(w http.ResponseWriter, filePath string) {
 	files, _ := ioutil.ReadDir(filePath)
 
-	fmt.Fprint(w, "File:", "| <b>last accessed at:</b>", "|and last modified at:")
+	fmt.Fprint(w, "Filename :	", "| last accessed at:", "|and last modified at")
 	for _, f := range files {
 		fileName := f.Name()
 		fullFilePath := filePath + fileName
