@@ -4,6 +4,8 @@ package main
 import (
 	// "flag"
 	"fmt"
+	"github.com/julienschmidt/httprouter"
+	"html/template"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -11,15 +13,13 @@ import (
 	"strconv"
 	"syscall"
 	"time"
-	"html/template"
-	"github.com/julienschmidt/httprouter"
 	// "github.com/gorilla/schema"|
 )
 
 type MetaData struct {
 	LastAccessed  string
 	LastModiefied string
-	FileName 	  string
+	FileName      string
 }
 
 var fileInfoPageTmpl, err = template.ParseFiles("index.html")
@@ -55,26 +55,33 @@ func fileInfo(fileName string) MetaData {
 	return fileMeta
 }
 
-func listFiles(w http.ResponseWriter, filePath string) {
+func listFiles(w http.ResponseWriter, filePath string, r *http.Request) {
 	files, _ := ioutil.ReadDir(filePath)
 
-	// fmt.Fprint(w, "Filename :	", "| last accessed at:", "|and last modified at")
-	
 	allFiles := []MetaData{}
-	 
+
 	for _, f := range files {
 		fileName := f.Name()
 		fullFilePath := filePath + fileName
 		fileMeta := fileInfo(fullFilePath)
 		singleFileInfo := MetaData{fileMeta.LastAccessed, fileMeta.LastModiefied, fileMeta.FileName}
 		allFiles = append(allFiles, singleFileInfo)
-		fmt.Println(allFiles)
+		// fmt.Println(allFiles)
 	}
-	
+
+	if r.FormValue("filename") != "" {
+
+		for _, value := range r.Form {
+			for i := 0; i < len(value); i++ {
+				fmt.Println(value[i])
+			}
+		}
+	}
+
 	if err := fileInfoPageTmpl.Execute(w, allFiles); err != nil {
 		fmt.Println("Failed to build page", err)
 	}
-	
+
 }
 
 func Index(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
@@ -84,11 +91,12 @@ func Index(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 func prepareCleaning(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	// fmt.Fprintf(w, "Path is: %s!\n", ps.ByName("path"))
 	filePath := ps.ByName("path")
-	listFiles(w, filePath)
+	listFiles(w, filePath, r)
 }
 func main() {
 	router := httprouter.New()
 	router.GET("/", Index)
 	router.GET("/cleaner/*path", prepareCleaning)
+	router.POST("/cleaner/*path", prepareCleaning)
 	log.Fatal(http.ListenAndServe(":8080", router))
 }
