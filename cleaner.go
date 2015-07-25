@@ -11,14 +11,18 @@ import (
 	"strconv"
 	"syscall"
 	"time"
+	"html/template"
 	"github.com/julienschmidt/httprouter"
 	// "github.com/gorilla/schema"|
 )
 
 type MetaData struct {
-	lastAccessed  string
-	lastModiefied string
+	LastAccessed  string
+	LastModiefied string
+	FileName 	  string
 }
+
+var fileInfoPageTmpl, err = template.ParseFiles("index.html")
 
 func unixTimeToDate(lastAccess string) time.Time {
 	i, err := strconv.ParseInt(lastAccess, 10, 64)
@@ -45,23 +49,32 @@ func fileInfo(fileName string) MetaData {
 	lastAccess := (file.Sys().(*syscall.Stat_t).Atimespec.Sec)
 	// dirty hack fix it via actively coverting or using sth else than ParseInt!!
 	dt := unixTimeToDate(fmt.Sprint(lastAccess))
-	fileMeta.lastAccessed = dt.Format(layout)
-	fileMeta.lastModiefied = file.ModTime().Format(layout)
+	fileMeta.LastAccessed = dt.Format(layout)
+	fileMeta.LastModiefied = file.ModTime().Format(layout)
+	fileMeta.FileName = file.Name()
 	return fileMeta
 }
 
 func listFiles(w http.ResponseWriter, filePath string) {
 	files, _ := ioutil.ReadDir(filePath)
 
-	fmt.Fprint(w, "Filename :	", "| last accessed at:", "|and last modified at")
+	// fmt.Fprint(w, "Filename :	", "| last accessed at:", "|and last modified at")
+	
+	allFiles := []MetaData{}
+	 
 	for _, f := range files {
 		fileName := f.Name()
 		fullFilePath := filePath + fileName
 		fileMeta := fileInfo(fullFilePath)
-		fmt.Println(fileName, "|", fileMeta.lastAccessed, "|", fileMeta.lastModiefied)
-		fmt.Fprint(w, "\n")
-		fmt.Fprint(w, fileName, "|", fileMeta.lastAccessed, "|", fileMeta.lastModiefied)
+		singleFileInfo := MetaData{fileMeta.LastAccessed, fileMeta.LastModiefied, fileMeta.FileName}
+		allFiles = append(allFiles, singleFileInfo)
+		fmt.Println(allFiles)
 	}
+	
+	if err := fileInfoPageTmpl.Execute(w, allFiles); err != nil {
+		fmt.Println("Failed to build page", err)
+	}
+	
 }
 
 func Index(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
@@ -69,7 +82,7 @@ func Index(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 }
 
 func prepareCleaning(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	fmt.Fprintf(w, "Path is: %s!\n", ps.ByName("path"))
+	// fmt.Fprintf(w, "Path is: %s!\n", ps.ByName("path"))
 	filePath := ps.ByName("path")
 	listFiles(w, filePath)
 }
