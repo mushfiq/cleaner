@@ -13,9 +13,9 @@ V1 feature lists as follows:
 	- ~~get user path from url route~~ 
 	- ~~apply the reporting function on top of user input~~ 
 	- ~~display the report on a webpage~~ 
-	- options to select specific files from the page
-	- add a delete button at the end of the file
-  - if selected delete files
+	- ~~options to select specific files from the page~~
+	- ~~add a delete button at the end of the file~~
+  - ~~if selected delete files~~
   
 ## Technical Debt.
  - update directory structure
