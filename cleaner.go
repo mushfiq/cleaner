@@ -2,9 +2,7 @@ package main
 
 //run command via go run cleaner.go --filepath=/Users/caveman/Desktop
 import (
-	// "flag"
 	"fmt"
-	"github.com/julienschmidt/httprouter"
 	"html/template"
 	"io/ioutil"
 	"log"
@@ -13,13 +11,11 @@ import (
 	"strconv"
 	"syscall"
 	"time"
-	// "github.com/gorilla/schema"|
+	"github.com/julienschmidt/httprouter"
 )
 
 type MetaData struct {
-	LastAccessed  string
-	LastModiefied string
-	FileName      string
+	LastAccessed, LastModiefied, FileName, FullFilePath string
 }
 
 var fileInfoPageTmpl, err = template.ParseFiles("index.html")
@@ -52,6 +48,7 @@ func fileInfo(fileName string) MetaData {
 	fileMeta.LastAccessed = dt.Format(layout)
 	fileMeta.LastModiefied = file.ModTime().Format(layout)
 	fileMeta.FileName = file.Name()
+	fileMeta.FullFilePath = fileName
 	return fileMeta
 }
 
@@ -62,18 +59,22 @@ func listFiles(w http.ResponseWriter, filePath string, r *http.Request) {
 
 	for _, f := range files {
 		fileName := f.Name()
-		fullFilePath := filePath + fileName
-		fileMeta := fileInfo(fullFilePath)
-		singleFileInfo := MetaData{fileMeta.LastAccessed, fileMeta.LastModiefied, fileMeta.FileName}
+		FullFilePath := filePath + fileName
+		fileMeta := fileInfo(FullFilePath)
+		singleFileInfo := MetaData{fileMeta.LastAccessed, fileMeta.LastModiefied, fileMeta.FileName, fileMeta.FullFilePath}
 		allFiles = append(allFiles, singleFileInfo)
-		// fmt.Println(allFiles)
 	}
-
+	
+	// dirty?
 	if r.FormValue("filename") != "" {
-
 		for _, value := range r.Form {
 			for i := 0; i < len(value); i++ {
 				fmt.Println(value[i])
+				err := os.Remove(value[i])
+				if err != nil {
+					fmt.Println(err)
+					return
+				}
 			}
 		}
 	}
@@ -89,11 +90,11 @@ func Index(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 }
 
 func prepareCleaning(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	// fmt.Fprintf(w, "Path is: %s!\n", ps.ByName("path"))
 	filePath := ps.ByName("path")
 	listFiles(w, filePath, r)
 }
 func main() {
+	fmt.Println("Mac cleaner running on port 8080")
 	router := httprouter.New()
 	router.GET("/", Index)
 	router.GET("/cleaner/*path", prepareCleaning)
