@@ -3,6 +3,7 @@ package main
 //run command via go run cleaner.go --filepath=/Users/caveman/Desktop
 import (
 	"fmt"
+	"github.com/julienschmidt/httprouter"
 	"html/template"
 	"io/ioutil"
 	"log"
@@ -11,14 +12,13 @@ import (
 	"strconv"
 	"syscall"
 	"time"
-	"github.com/julienschmidt/httprouter"
 )
 
 type MetaData struct {
 	LastAccessed, LastModiefied, FileName, FullFilePath string
 }
 
-var fileInfoPageTmpl, err = template.ParseFiles("index.html")
+var fileInfoPageTmpl, err = template.ParseFiles("templates/index.html")
 
 func unixTimeToDate(lastAccess string) time.Time {
 	i, err := strconv.ParseInt(lastAccess, 10, 64)
@@ -64,17 +64,21 @@ func listFiles(w http.ResponseWriter, filePath string, r *http.Request) {
 		singleFileInfo := MetaData{fileMeta.LastAccessed, fileMeta.LastModiefied, fileMeta.FileName, fileMeta.FullFilePath}
 		allFiles = append(allFiles, singleFileInfo)
 	}
-	
+
 	// dirty?
 	if r.FormValue("filename") != "" {
 		for _, value := range r.Form {
 			for i := 0; i < len(value); i++ {
-				fmt.Println(value[i])
-				err := os.Remove(value[i])
-				if err != nil {
-					fmt.Println(err)
-					return
+
+				if value[i] != "" {
+					fmt.Println("Delteing", value[i])
+					err := os.Remove(value[i])
+					if err != nil {
+						fmt.Println(err)
+						return
+					}
 				}
+
 			}
 		}
 	}
