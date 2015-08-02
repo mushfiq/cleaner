@@ -65,26 +65,32 @@ func listFiles(w http.ResponseWriter, filePath string, r *http.Request) {
 		allFiles = append(allFiles, singleFileInfo)
 	}
 
+	if err := fileInfoPageTmpl.Execute(w, allFiles); err != nil {
+		fmt.Println("Failed to build page", err)
+	}
+
+}
+
+func deleteFiles(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+
 	// dirty?
 	if r.FormValue("filename") != "" {
 		for _, value := range r.Form {
 			for i := 0; i < len(value); i++ {
-
 				if value[i] != "" {
+					filePath := ps.ByName("path")
 					fmt.Println("Delteing", value[i])
 					err := os.Remove(value[i])
 					if err != nil {
 						fmt.Println(err)
 						return
 					}
+					// after successful file deletion redirecting to file listing
+					listFiles(w, filePath, r)
 				}
 
 			}
 		}
-	}
-
-	if err := fileInfoPageTmpl.Execute(w, allFiles); err != nil {
-		fmt.Println("Failed to build page", err)
 	}
 
 }
@@ -97,11 +103,12 @@ func prepareCleaning(w http.ResponseWriter, r *http.Request, ps httprouter.Param
 	filePath := ps.ByName("path")
 	listFiles(w, filePath, r)
 }
+
 func main() {
 	fmt.Println("Mac cleaner running on port 8080")
 	router := httprouter.New()
 	router.GET("/", Index)
 	router.GET("/cleaner/*path", prepareCleaning)
-	router.POST("/cleaner/*path", prepareCleaning)
+	router.POST("/cleaner/*path", deleteFiles)
 	log.Fatal(http.ListenAndServe(":8080", router))
 }
