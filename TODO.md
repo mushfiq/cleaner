@@ -16,6 +16,15 @@ V1 feature lists as follows:
 	- ~~options to select specific files from the page~~
 	- ~~add a delete button at the end of the file~~
   - ~~if selected delete files~~
+  - refresh page after file deletion
+V2 featrues:
+  - separate files and dir
+  - add dir traversing
+  - sort by last access date
+  - sort by last modification date
+
+
+
   
 ## Technical Debt.
  - update directory structure

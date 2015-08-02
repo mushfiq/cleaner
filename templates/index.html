@@ -18,12 +18,12 @@
 			<fieldset>
 
 			<!-- Form Name -->
-			<legend>Cleaner!</legend>
-
+			<H2 style="margin-left:30%"> Mac Cleaner!</H2>
+			<div class="dhaka" style="margin-left:30%">
 			<!-- Multiple Checkboxes -->
 			<div class="form-group">
-			  <label class="col-md-4 control-label" for="checkboxes">Files</label>
-			  <div class="col-md-4">
+			  <!-- <label class="col-md-1 control-label" for="checkboxes">Files</label> -->
+			  <div class="col-md-7">
 				  {{range .}}
 			  <div class="checkbox">
 				  <input type="checkbox" name="filename" value="{{.FullFilePath}}" data="{{.FileName}}"><b>File:-{{.FileName}}</b>--Last Accessed At:{{.LastAccessed}}-Last Modified at: {{.LastModiefied}}
@@ -35,8 +35,8 @@
 			<br>
 			<!-- Button -->
 			<div class="form-group">
-			  <label class="col-md-4 control-label" for="singlebutton"></label>
-			  <div class="col-md-4">
+			  <label class="col-md-1 control-label" for="singlebutton"></label>
+			  <div class="col-md-7">
 			    <button id="singlebutton" name="singlebutton" class="btn btn-danger">Delete</button>
 			  </div>
 			</div>
