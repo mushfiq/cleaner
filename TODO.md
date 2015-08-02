@@ -17,6 +17,15 @@ V1 feature lists as follows:
 	- ~~add a delete button at the end of the file~~
   - ~~if selected delete files~~
   
+V2 featrues:
+  - separate files and dir
+  - add dir traversing
+  - sort by last access date
+  - sort by last modification date
+
+
+
+  
 ## Technical Debt.
  - update directory structure
  - add unit tests
